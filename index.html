@@ -36,7 +36,7 @@
     <!-- Loading Screen -->
     <div id="loader" class="fixed inset-0 bg-[#0a0d14] z-[200] flex-col items-center justify-center">
         <i class="fa-solid fa-circle-notch fa-spin text-4xl text-teal-500 mb-4"></i>
-        <p class="text-sm text-gray-400" id="loader-text">กำลังซิงค์ข้อมูลจาก Sheet...</p>
+        <p class="text-sm text-gray-400" id="loader-text">กำลังซิงค์ข้อมูล...</p>
     </div>
 
     <!-- Header (Fixed Top) -->
@@ -61,7 +61,6 @@
         
         <!-- TAB 1: Dashboard -->
         <div id="tab-dashboard" class="tab-content active space-y-4">
-            <!-- Time Filters -->
             <div class="flex bg-[#1e2330] p-1 rounded-xl border border-[#2a3040]">
                 <button onclick="setTimeFilter('today')" id="tfilter-today" class="tfilter-btn flex-1 py-1.5 text-xs font-medium rounded-lg text-gray-400 hover:text-white transition">วันนี้</button>
                 <button onclick="setTimeFilter('week')" id="tfilter-week" class="tfilter-btn flex-1 py-1.5 text-xs font-medium rounded-lg text-gray-400 hover:text-white transition">สัปดาห์นี้</button>
@@ -91,7 +90,6 @@
                 </div>
             </div>
 
-            <!-- Recent Transaction History -->
             <div class="pt-2">
                 <div class="flex justify-between items-end mb-4">
                     <h3 class="text-lg font-medium text-gray-200">รายการล่าสุด</h3>
@@ -865,6 +863,7 @@
             try {
                 await fetch(sheetUrl, {
                     method: 'POST',
+                    mode: 'no-cors', /* เปิดใช้งานป้องกันการ Error ตอนส่งข้อมูล */
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
@@ -928,7 +927,7 @@
             const now = new Date();
             const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`; 
             const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-            const datetimeStr = `${dateStr} ${timeStr}`; // สำหรับบันทึกลงคอลัมน์ "วันเวลา"
+            const datetimeStr = `${dateStr} ${timeStr}`;
 
             const payload = {
                 action: currentAssetType === 'saving' ? 'add_saving' : 'add_debtor',
@@ -942,6 +941,7 @@
             try {
                 await fetch(sheetUrl, {
                     method: 'POST',
+                    mode: 'no-cors', /* เปิดใช้งานป้องกันการ Error ตอนส่งข้อมูล */
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
