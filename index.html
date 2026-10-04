@@ -46,7 +46,6 @@
         
         <!-- TAB 1: Dashboard -->
         <div id="tab-dashboard" class="tab-content active space-y-4">
-            
             <!-- Time Filters -->
             <div class="flex bg-[#1e2330] p-1 rounded-xl border border-[#2a3040]">
                 <button onclick="setTimeFilter('today')" id="tfilter-today" class="tfilter-btn flex-1 py-1.5 text-xs font-medium rounded-lg text-gray-400 hover:text-white transition">วันนี้</button>
@@ -87,7 +86,15 @@
             </div>
         </div>
 
-        <!-- TAB 2: All Transactions (History) -->
+        <!-- TAB 2: Stats (Charts) -->
+        <div id="tab-stats" class="tab-content space-y-6 pb-10">
+            <h3 class="text-xl font-semibold text-white px-2">สถิติ</h3>
+            <div id="stats-container" class="space-y-6">
+                <!-- Charts Injected Here -->
+            </div>
+        </div>
+
+        <!-- TAB 3: All Transactions (History) -->
         <div id="tab-history" class="tab-content space-y-4 pb-10">
             <h3 class="text-xl font-semibold text-white px-2">ประวัติการทำรายการ</h3>
             <div id="all-transactions-list" class="space-y-3">
@@ -95,7 +102,7 @@
             </div>
         </div>
 
-        <!-- TAB 3: Add Transaction (Quick Add) -->
+        <!-- TAB 4: Add Transaction (Quick Add) -->
         <div id="tab-quick" class="tab-content pb-10">
             <div class="flex justify-between items-center mb-6 px-2">
                 <h3 class="text-xl font-semibold text-white">รายการ</h3>
@@ -119,7 +126,7 @@
             </div>
         </div>
 
-        <!-- TAB 4: Settings -->
+        <!-- TAB 5: Settings -->
         <div id="tab-settings" class="tab-content space-y-6">
             <h3 class="text-xl font-semibold text-white px-2 mb-4">ตั้งค่าระบบ</h3>
             
@@ -139,27 +146,35 @@
 
     <!-- Bottom Navigation -->
     <div class="fixed bottom-0 left-0 right-0 z-40 pointer-events-none">
-        <nav class="max-w-2xl mx-auto bg-[#1e2330]/95 backdrop-blur-md rounded-t-[2rem] border-t border-x border-[#3d465c]/50 px-6 py-2 pb-safe flex justify-between items-center relative shadow-[0_-10px_40px_rgba(0,0,0,0.4)] pointer-events-auto">
-            <button onclick="switchTab('dashboard')" class="nav-btn text-teal-400 flex flex-col items-center w-16" data-target="dashboard">
+        <nav class="max-w-2xl mx-auto bg-[#1e2330]/95 backdrop-blur-md rounded-t-[2rem] border-t border-x border-[#3d465c]/50 px-4 sm:px-6 py-2 pb-safe flex justify-between items-center relative shadow-[0_-10px_40px_rgba(0,0,0,0.4)] pointer-events-auto">
+            
+            <button onclick="switchTab('dashboard')" class="nav-btn text-teal-400 flex flex-col items-center w-[18%]" data-target="dashboard">
                 <i class="fa-solid fa-house text-xl mb-1 mt-1"></i><span class="text-[10px] font-medium">หน้าหลัก</span>
             </button>
-            <button onclick="switchTab('history')" class="nav-btn text-gray-500 hover:text-gray-300 flex flex-col items-center w-16 pr-2" data-target="history">
-                <i class="fa-solid fa-clock-rotate-left text-xl mb-1 mt-1"></i><span class="text-[10px] font-medium whitespace-nowrap">รายรับ-รายจ่าย</span>
+            
+            <button onclick="switchTab('stats')" class="nav-btn text-gray-500 hover:text-gray-300 flex flex-col items-center w-[18%] pr-2" data-target="stats">
+                <i class="fa-solid fa-chart-simple text-xl mb-1 mt-1"></i><span class="text-[10px] font-medium">สถิติ</span>
             </button>
             
-            <!-- Main FAB (Add) -->
-            <button onclick="switchTab('quick')" class="absolute left-1/2 transform -translate-x-1/2 -top-8 bg-teal-500 hover:bg-teal-400 p-4 rounded-full text-white shadow-[0_4px_20px_rgba(20,184,166,0.5)] border-4 border-[#0a0d14] transition hover:scale-110 active:scale-95" data-target="quick">
-                <i class="fa-solid fa-plus text-2xl w-7 h-7 flex items-center justify-center"></i>
-            </button>
+            <!-- Main FAB (Add) - Center (takes about 20% visual space) -->
+            <div class="w-[20%] flex justify-center">
+                <button onclick="switchTab('quick')" class="absolute -top-8 bg-teal-500 hover:bg-teal-400 p-4 rounded-full text-white shadow-[0_4px_20px_rgba(20,184,166,0.5)] border-4 border-[#0a0d14] transition hover:scale-110 active:scale-95" data-target="quick">
+                    <i class="fa-solid fa-plus text-2xl w-7 h-7 flex items-center justify-center"></i>
+                </button>
+            </div>
             
-            <button onclick="switchTab('settings')" class="nav-btn text-gray-500 hover:text-gray-300 flex flex-col items-center w-16 pl-4" data-target="settings">
+            <button onclick="switchTab('history')" class="nav-btn text-gray-500 hover:text-gray-300 flex flex-col items-center w-[18%] pl-2" data-target="history">
+                <i class="fa-solid fa-clock-rotate-left text-xl mb-1 mt-1"></i><span class="text-[10px] font-medium">ประวัติ</span>
+            </button>
+
+            <button onclick="switchTab('settings')" class="nav-btn text-gray-500 hover:text-gray-300 flex flex-col items-center w-[18%]" data-target="settings">
                 <i class="fa-solid fa-gear text-xl mb-1 mt-1"></i><span class="text-[10px] font-medium">ตั้งค่า</span>
             </button>
-            <div class="w-16"></div>
+            
         </nav>
     </div>
 
-    <!-- Modal: Input Amount (Bottom Sheet) -->
+    <!-- Modal: Input Amount -->
     <div id="modal-transaction" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] hidden flex items-end justify-center pb-0">
         <div id="trans-sheet" class="bottom-sheet bg-[#1e2330] w-full max-w-2xl rounded-t-3xl p-6 pb-12 text-center border-t border-x border-[#3d465c] shadow-[0_-10px_50px_rgba(0,0,0,0.6)]">
             <div class="w-12 h-1.5 bg-[#3d465c] rounded-full mx-auto mb-6"></div>
@@ -191,6 +206,7 @@
         
         let currentTimeFilter = 'all'; 
         let isShortFormat = true;
+        const thaiMonths = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
 
         document.getElementById('sheet-url').value = sheetUrl;
 
@@ -217,6 +233,7 @@
                 renderDashboard();
                 renderAllTransactions();
                 renderQuickAdd();
+                renderStats(); // Render charts
                 
             } catch (error) {
                 console.error("Fetch Error:", error);
@@ -251,10 +268,20 @@
             }
         }
 
+        function parseLocalDate(dateStr) {
+            if(!dateStr) return new Date();
+            const parts = dateStr.split('-');
+            if(parts.length === 3) {
+                return new Date(parts[0], parts[1]-1, parts[2]);
+            }
+            return new Date(dateStr);
+        }
+
         function toggleNumberFormat() {
             isShortFormat = !isShortFormat;
             renderDashboard();
             renderAllTransactions();
+            renderStats(); // Update charts numbers
         }
 
         function formatMoney(amount) {
@@ -269,6 +296,107 @@
                 return absAmt.toLocaleString('en-US');
             }
         }
+
+        // ---------------- STATS (CHARTS) LOGIC ---------------- //
+        function buildChartHTML(title, subtitle, iconClass, dataList, barColorClass) {
+            let maxVal = Math.max(...dataList.map(d => d.value));
+            
+            let html = `
+            <div class="dark-card rounded-2xl p-5">
+                <h4 class="text-sm font-medium text-gray-200 mb-5 flex items-center">
+                    <i class="${iconClass} mr-2 text-gray-400"></i> ${title} <span class="text-[10px] text-gray-500 ml-2">${subtitle}</span>
+                </h4>
+                <div class="space-y-4">
+            `;
+            
+            dataList.forEach(item => {
+                let width = (maxVal > 0 && item.value > 0) ? (item.value / maxVal) * 100 : 0;
+                if(width > 100) width = 100;
+                let valStr = item.value <= 0 ? '-' : formatMoney(item.value);
+                
+                html += `
+                    <div class="flex items-center text-xs">
+                        <div class="w-16 text-gray-400 truncate">${item.label}</div>
+                        <div class="flex-1 mx-3 h-3 bg-[#0a0d14] rounded-full overflow-hidden border border-[#2a3040]">
+                            <div class="h-full rounded-full ${barColorClass}" style="width: ${width}%"></div>
+                        </div>
+                        <div class="w-20 text-right font-medium text-gray-200">${valStr}</div>
+                    </div>
+                `;
+            });
+            html += `</div></div>`;
+            return html;
+        }
+
+        function renderStats() {
+            const container = document.getElementById('stats-container');
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            let html = '';
+
+            // 1. DAILY (Last 7 days)
+            let dailyData = [];
+            for(let i=6; i>=0; i--) {
+                let d = new Date(today);
+                d.setDate(today.getDate() - i);
+                
+                let dateStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+                
+                let sum = transactions.reduce((acc, t) => {
+                    if(t.date === dateStr) {
+                        return acc + (t.type === 'income' ? parseFloat(t.amount) : -parseFloat(t.amount));
+                    }
+                    return acc;
+                }, 0);
+                
+                let label = i === 0 ? 'วันนี้' : `${d.getDate()} ${thaiMonths[d.getMonth()]}`;
+                dailyData.push({ label, value: sum });
+            }
+            html += buildChartHTML('รายวัน', '(7 วันย้อนหลัง)', 'fa-solid fa-calendar-day', dailyData, 'bg-emerald-400');
+
+            // 2. WEEKLY (Last 4 weeks)
+            let weeklyData = [];
+            let startOfThisWeek = new Date(today);
+            startOfThisWeek.setDate(today.getDate() - today.getDay()); // Sunday
+            
+            for(let i=3; i>=0; i--) {
+                let weekStart = new Date(startOfThisWeek);
+                weekStart.setDate(startOfThisWeek.getDate() - (i * 7));
+                let weekEnd = new Date(weekStart);
+                weekEnd.setDate(weekStart.getDate() + 6);
+                
+                let sum = transactions.reduce((acc, t) => {
+                    let tDate = parseLocalDate(t.date);
+                    if(tDate >= weekStart && tDate <= weekEnd) {
+                        return acc + (t.type === 'income' ? parseFloat(t.amount) : -parseFloat(t.amount));
+                    }
+                    return acc;
+                }, 0);
+                
+                let label = i === 0 ? 'สัปดาห์นี้' : `${i} วีคที่แล้ว`;
+                weeklyData.push({ label, value: sum });
+            }
+            html += buildChartHTML('รายสัปดาห์', '(4 วีคย้อนหลัง)', 'fa-regular fa-calendar-check', weeklyData, 'bg-cyan-400');
+
+            // 3. MONTHLY (Current year)
+            let monthlyData = [];
+            const currentYear = today.getFullYear();
+            for(let i=0; i<12; i++) {
+                let sum = transactions.reduce((acc, t) => {
+                    let tDate = parseLocalDate(t.date);
+                    if(tDate.getFullYear() === currentYear && tDate.getMonth() === i) {
+                        return acc + (t.type === 'income' ? parseFloat(t.amount) : -parseFloat(t.amount));
+                    }
+                    return acc;
+                }, 0);
+                monthlyData.push({ label: thaiMonths[i], value: sum });
+            }
+            html += buildChartHTML('รายเดือน', '(ปีปัจจุบัน)', 'fa-solid fa-calendar-days', monthlyData, 'bg-orange-500');
+
+            container.innerHTML = html;
+        }
+
+        // ---------------- UI & Navigation ---------------- //
 
         function setTimeFilter(filter) {
             currentTimeFilter = filter;
@@ -296,19 +424,17 @@
             if (currentTimeFilter === 'all') return transactions;
 
             const now = new Date();
-            const todayStr = now.toLocaleDateString('en-CA');
+            const todayStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
             
             return transactions.filter(t => {
                 if (currentTimeFilter === 'today') {
                     return t.date === todayStr;
                 }
                 
-                const tDate = new Date(t.date);
+                const tDate = parseLocalDate(t.date);
                 if (currentTimeFilter === 'week') {
-                    const lastSunday = new Date(now);
-                    lastSunday.setDate(now.getDate() - now.getDay());
-                    lastSunday.setHours(0,0,0,0);
-                    
+                    const lastSunday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                    lastSunday.setDate(lastSunday.getDate() - lastSunday.getDay());
                     return tDate >= lastSunday && tDate <= now; 
                 }
                 
@@ -335,6 +461,9 @@
                 btn.classList.remove('text-gray-500');
                 btn.classList.add('text-teal-400');
             }
+            
+            // Re-render stats if switching to it, in case data changed
+            if(tabId === 'stats') renderStats();
         }
 
         function buildTransactionHTML(t) {
@@ -476,13 +605,13 @@
             document.getElementById('loader-text').innerText = 'กำลังอัปเดตข้อมูล...';
 
             const now = new Date();
-            const date = now.toLocaleDateString('en-CA'); 
-            const time = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+            const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`; 
+            const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
 
             const payload = {
                 action: 'add_trans',
-                date: date,
-                time: time,
+                date: dateStr,
+                time: timeStr,
                 type: cat.type === 'income' ? 'รายรับ' : 'รายจ่าย',
                 name: cat.name,
                 amount: amount,
