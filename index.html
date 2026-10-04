@@ -45,9 +45,14 @@
             <h1 class="text-xl font-semibold text-white tracking-wide">
                 <span class="text-teal-400">รายรับ</span>-จ่าย
             </h1>
-            <button onclick="fetchDataFromSheet()" class="text-xs px-3 py-1.5 bg-[#2a3040] text-gray-300 rounded-full font-medium hover:bg-[#3d465c] transition">
-                <i class="fa-solid fa-rotate-right mr-1"></i> ซิงค์
-            </button>
+            <div class="flex items-center gap-2">
+                <button onclick="fetchDataFromSheet()" class="text-xs px-3 py-1.5 bg-[#2a3040] text-gray-300 rounded-full font-medium hover:bg-[#3d465c] transition">
+                    <i class="fa-solid fa-rotate-right mr-1"></i> ซิงค์
+                </button>
+                <button onclick="switchTab('settings')" class="w-8 h-8 bg-[#2a3040] text-gray-300 rounded-full flex items-center justify-center hover:bg-[#3d465c] transition">
+                    <i class="fa-solid fa-gear"></i>
+                </button>
+            </div>
         </div>
     </header>
 
@@ -97,11 +102,10 @@
             </div>
         </div>
 
-        <!-- TAB 2: Stats (Charts & Breakdown) -->
+        <!-- TAB 2: Stats -->
         <div id="tab-stats" class="tab-content pb-10">
             <h3 class="text-xl font-semibold text-white px-2 mb-4">สถิติและสรุปยอด</h3>
             
-            <!-- Stats Time Filters -->
             <div class="flex bg-[#1e2330] p-1 rounded-xl border border-[#2a3040] mb-6">
                 <button onclick="setStatsTimeFilter('today')" id="sfilter-today" class="sfilter-btn flex-1 py-1.5 text-xs font-medium rounded-lg text-gray-400 hover:text-white transition">วันนี้</button>
                 <button onclick="setStatsTimeFilter('week')" id="sfilter-week" class="sfilter-btn flex-1 py-1.5 text-xs font-medium rounded-lg text-gray-400 hover:text-white transition">สัปดาห์นี้</button>
@@ -109,9 +113,7 @@
                 <button onclick="setStatsTimeFilter('all')" id="sfilter-all" class="sfilter-btn flex-1 py-1.5 text-xs font-medium rounded-lg text-gray-400 hover:text-white transition">ทั้งหมด</button>
             </div>
 
-            <!-- Main Pie Chart Card -->
             <div class="dark-card rounded-3xl p-6 mb-6">
-                <!-- Segmented Control: Income / Expense -->
                 <div class="flex justify-center mb-6">
                     <div class="bg-[#0a0d14] p-1 rounded-xl border border-[#2a3040] inline-flex">
                         <button onclick="setStatsType('expense')" id="stype-expense" class="segment-btn px-6 py-1.5 text-sm font-medium rounded-lg text-gray-400 hover:text-white">รายจ่าย</button>
@@ -119,7 +121,6 @@
                     </div>
                 </div>
 
-                <!-- Donut Chart Canvas -->
                 <div class="relative w-48 h-48 mx-auto mb-6">
                     <canvas id="categoryChart"></canvas>
                     <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
@@ -128,33 +129,23 @@
                     </div>
                 </div>
 
-                <!-- Category Breakdown List -->
-                <div id="stats-breakdown-list" class="space-y-3 mt-6 border-t border-[#2a3040] pt-4">
-                    <!-- Dynamic List Injected Here -->
-                </div>
+                <div id="stats-breakdown-list" class="space-y-3 mt-6 border-t border-[#2a3040] pt-4"></div>
             </div>
 
             <h3 class="text-sm font-medium text-gray-400 px-2 mb-3 mt-8">สรุปแนวโน้ม (Trend)</h3>
-            <div id="stats-container" class="space-y-6">
-                <!-- Horizontal Bar Charts Injected Here -->
-            </div>
+            <div id="stats-container" class="space-y-6"></div>
         </div>
 
         <!-- TAB 3: All Transactions (History) -->
         <div id="tab-history" class="tab-content space-y-4 pb-10">
             <h3 class="text-xl font-semibold text-white px-2">ประวัติการทำรายการ</h3>
-            <div id="all-transactions-list" class="space-y-3">
-                <!-- Full history injected here -->
-            </div>
+            <div id="all-transactions-list" class="space-y-3"></div>
         </div>
 
         <!-- TAB 4: Add Transaction (Quick Add) -->
         <div id="tab-quick" class="tab-content pb-10">
             <div class="flex justify-between items-center mb-6 px-2">
                 <h3 class="text-xl font-semibold text-white">รายการ</h3>
-                <button onclick="switchTab('settings')" class="text-xs bg-[#2a3040] text-gray-300 px-3 py-1.5 rounded-full hover:bg-[#3d465c] transition">
-                    <i class="fa-solid fa-pen mr-1"></i> จัดการ
-                </button>
             </div>
             
             <div class="dark-card rounded-2xl p-5 mb-6">
@@ -172,7 +163,36 @@
             </div>
         </div>
 
-        <!-- TAB 5: Settings -->
+        <!-- TAB 5: Assets (เงินฝาก & คนติดเงิน) -->
+        <div id="tab-assets" class="tab-content space-y-6 pb-10">
+            <h3 class="text-xl font-semibold text-white px-2">กระเป๋าและลูกหนี้</h3>
+            
+            <!-- เงินฝาก -->
+            <div class="dark-card rounded-3xl p-6">
+                <div class="flex justify-between items-end mb-5">
+                    <h4 class="text-md font-medium text-teal-400 flex items-center">
+                        <i class="fa-solid fa-piggy-bank mr-2"></i> บัญชีเงินฝาก
+                    </h4>
+                    <span class="text-xs text-gray-400">รวม <span id="total-savings" class="text-white font-medium text-sm ml-1">0</span></span>
+                </div>
+                <div id="savings-list" class="space-y-3"></div>
+            </div>
+
+            <!-- คนติดเงิน -->
+            <div class="dark-card rounded-3xl p-6">
+                <div class="flex justify-between items-end mb-5">
+                    <h4 class="text-md font-medium text-rose-400 flex items-center">
+                        <i class="fa-solid fa-hand-holding-dollar mr-2"></i> คนติดเงิน
+                    </h4>
+                    <span class="text-xs text-gray-400">รวม <span id="total-debtors" class="text-white font-medium text-sm ml-1">0</span></span>
+                </div>
+                <div id="debtors-list" class="space-y-3"></div>
+            </div>
+            
+            <p class="text-[11px] text-gray-500 text-center mt-2">💡 เพิ่มหรือลบข้อมูลในชีต "เงินฝาก" และ "คนติดเงิน"</p>
+        </div>
+
+        <!-- TAB 6: Settings -->
         <div id="tab-settings" class="tab-content space-y-6">
             <h3 class="text-xl font-semibold text-white px-2 mb-4">ตั้งค่าระบบ</h3>
             
@@ -184,8 +204,8 @@
             </div>
             
             <div class="dark-card rounded-3xl p-6 text-center">
-                 <h3 class="text-sm font-medium mb-2 text-gray-200">จัดการหมวดหมู่และประวัติ</h3>
-                 <p class="text-xs text-gray-400 leading-relaxed">การแก้ไข/ลบหมวดหมู่ ให้ทำใน <b>Google Sheets</b><br>หน้า "หมู่หมวด" หรือ "รายการ" ได้เลยครับ<br>จากนั้นกดปุ่ม "ซิงค์" ที่มุมขวาบน</p>
+                 <h3 class="text-sm font-medium mb-2 text-gray-200">จัดการข้อมูล</h3>
+                 <p class="text-xs text-gray-400 leading-relaxed">การแก้ไข/ลบหมวดหมู่ ให้ทำใน <b>Google Sheets</b><br>ได้เลยครับ จากนั้นกดปุ่ม "ซิงค์" ที่มุมขวาบน</p>
             </div>
         </div>
     </main>
@@ -213,8 +233,9 @@
                 <i class="fa-solid fa-clock-rotate-left text-xl mb-1 mt-1"></i><span class="text-[10px] font-medium">ประวัติ</span>
             </button>
 
-            <button onclick="switchTab('settings')" class="nav-btn text-gray-500 hover:text-gray-300 flex flex-col items-center w-[18%]" data-target="settings">
-                <i class="fa-solid fa-gear text-xl mb-1 mt-1"></i><span class="text-[10px] font-medium">ตั้งค่า</span>
+            <!-- ปุ่มกระเป๋า (แทนปุ่มตั้งค่าเดิม) -->
+            <button onclick="switchTab('assets')" class="nav-btn text-gray-500 hover:text-gray-300 flex flex-col items-center w-[18%]" data-target="assets">
+                <i class="fa-solid fa-wallet text-xl mb-1 mt-1"></i><span class="text-[10px] font-medium">กระเป๋า</span>
             </button>
             
         </nav>
@@ -247,6 +268,9 @@
     <script>
         let categories = [];
         let transactions = [];
+        let savings = [];
+        let debtors = [];
+        
         let sheetUrl = localStorage.getItem('fivem_sheet_url') || '';
         let pendingCategory = null;
         
@@ -254,7 +278,6 @@
         let isShortFormat = true;
         const thaiMonths = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
 
-        // Stats specific state
         let statsTimeFilter = 'month'; 
         let statsType = 'income'; 
         let categoryChartInstance = null;
@@ -280,11 +303,14 @@
                 
                 categories = data.categories || [];
                 transactions = data.transactions || [];
+                savings = data.savings || [];
+                debtors = data.debtors || [];
                 
                 renderDashboard();
                 renderAllTransactions();
                 renderQuickAdd();
-                renderStatsPage(); // Render initial stats
+                renderStatsPage(); 
+                renderAssets();
                 
             } catch (error) {
                 console.error("Fetch Error:", error);
@@ -333,6 +359,7 @@
             renderDashboard();
             renderAllTransactions();
             renderStatsPage(); 
+            renderAssets();
         }
 
         function formatMoney(amount) {
@@ -415,7 +442,7 @@
             }
         }
 
-        // ---------------- STATS (PIE CHART & BREAKDOWN) LOGIC ---------------- //
+        // ---------------- STATS LOGIC ---------------- //
         function setStatsTimeFilter(filter) {
             statsTimeFilter = filter;
             document.querySelectorAll('.sfilter-btn').forEach(btn => {
@@ -439,11 +466,9 @@
         }
 
         function renderStatsPage() {
-            // 1. Filter Data for Pie Chart
             const timeFiltered = filterTransactionsByTime(transactions, statsTimeFilter);
             const typeFiltered = timeFiltered.filter(t => t.type === statsType);
 
-            // 2. Group by Category
             let categoryTotals = {};
             let totalAmount = 0;
             typeFiltered.forEach(t => {
@@ -455,18 +480,15 @@
                 totalAmount += amt;
             });
 
-            // Convert to array and sort descending
             let chartDataArray = Object.keys(categoryTotals).map(key => ({
                 name: key,
                 emoji: categoryTotals[key].emoji,
                 amount: categoryTotals[key].amount
             })).sort((a, b) => b.amount - a.amount);
 
-            // Update Center Text
             document.getElementById('chart-center-label').innerText = statsType === 'income' ? 'รายรับรวม' : 'รายจ่ายรวม';
             document.getElementById('chart-center-total').innerText = '$' + formatMoney(totalAmount);
 
-            // Chart Colors Palette
             const incomeColors = ['#14b8a6', '#0ea5e9', '#3b82f6', '#8b5cf6', '#10b981', '#2dd4bf', '#38bdf8'];
             const expenseColors = ['#f43f5e', '#f97316', '#eab308', '#ef4444', '#fb7185', '#fb923c', '#facc15'];
             const activeColors = statsType === 'income' ? incomeColors : expenseColors;
@@ -475,7 +497,6 @@
             const dataValues = chartDataArray.map(d => d.amount);
             const backgroundColors = chartDataArray.map((_, i) => activeColors[i % activeColors.length]);
 
-            // 3. Render Chart.js
             const ctx = document.getElementById('categoryChart').getContext('2d');
             if (categoryChartInstance) {
                 categoryChartInstance.data.labels = labels;
@@ -487,33 +508,18 @@
                     type: 'doughnut',
                     data: {
                         labels: labels,
-                        datasets: [{
-                            data: dataValues,
-                            backgroundColor: backgroundColors,
-                            borderWidth: 0,
-                            hoverOffset: 4
-                        }]
+                        datasets: [{ data: dataValues, backgroundColor: backgroundColors, borderWidth: 0, hoverOffset: 4 }]
                     },
                     options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        cutout: '75%', // Thickness of donut
+                        responsive: true, maintainAspectRatio: false, cutout: '75%',
                         plugins: {
-                            legend: { display: false }, // Hide default legend
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        let val = context.raw;
-                                        return ' $' + val.toLocaleString('en-US');
-                                    }
-                                }
-                            }
+                            legend: { display: false },
+                            tooltip: { callbacks: { label: function(context) { return ' $' + context.raw.toLocaleString('en-US'); } } }
                         }
                     }
                 });
             }
 
-            // 4. Render Breakdown List below chart
             const breakdownList = document.getElementById('stats-breakdown-list');
             breakdownList.innerHTML = '';
             
@@ -538,22 +544,15 @@
                                     <p class="text-[10px] text-gray-400">${percent}%</p>
                                 </div>
                             </div>
-                            <div class="text-right font-medium ${amtColor} text-sm">
-                                ${sign}$${formatMoney(item.amount)}
-                            </div>
-                        </div>
-                    `;
+                            <div class="text-right font-medium ${amtColor} text-sm">${sign}$${formatMoney(item.amount)}</div>
+                        </div>`;
                 });
             }
-
-            // 5. Render Horizontal Trend Charts (The old stats)
             renderTrendCharts();
         }
 
-        // Horizontal Bar Charts (Trend)
         function buildTrendChartHTML(title, subtitle, iconClass, dataList, barColorClass) {
             let maxVal = Math.max(...dataList.map(d => d.value));
-            
             let html = `
             <div class="dark-card rounded-2xl p-5">
                 <h4 class="text-sm font-medium text-gray-200 mb-5 flex items-center">
@@ -574,8 +573,7 @@
                             <div class="h-full rounded-full ${barColorClass}" style="width: ${width}%"></div>
                         </div>
                         <div class="w-16 text-right font-medium text-gray-200 truncate">${valStr}</div>
-                    </div>
-                `;
+                    </div>`;
             });
             html += `</div></div>`;
             return html;
@@ -637,6 +635,58 @@
             html += buildTrendChartHTML('แนวโน้มรายเดือน', '(ปีปัจจุบัน)', 'fa-solid fa-calendar-days', monthlyData, 'bg-orange-500');
 
             container.innerHTML = html;
+        }
+
+        // ---------------- ASSETS LOGIC ---------------- //
+        function renderAssets() {
+            const savingsList = document.getElementById('savings-list');
+            const debtorsList = document.getElementById('debtors-list');
+            let totalSav = 0, totalDeb = 0;
+            
+            savingsList.innerHTML = ''; debtorsList.innerHTML = '';
+
+            if(savings.length === 0) {
+                savingsList.innerHTML = `<p class="text-center text-xs text-gray-500 py-3">ยังไม่มีข้อมูลเงินฝาก</p>`;
+            } else {
+                savings.forEach(item => {
+                    const amt = parseFloat(item.amount) || 0;
+                    totalSav += amt;
+                    savingsList.innerHTML += `
+                        <div class="flex justify-between items-center bg-[#0a0d14] p-3 rounded-xl border border-[#2a3040]">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-[#1e2330] flex items-center justify-center text-lg border border-[#3d465c]">${item.emoji || '🏦'}</div>
+                                <div>
+                                    <p class="text-sm text-gray-200">${item.name}</p>
+                                    <p class="text-[10px] text-gray-400">${item.note || '-'}</p>
+                                </div>
+                            </div>
+                            <div class="text-teal-400 font-medium text-sm">$${formatMoney(amt)}</div>
+                        </div>`;
+                });
+            }
+            
+            if(debtors.length === 0) {
+                debtorsList.innerHTML = `<p class="text-center text-xs text-gray-500 py-3">ยังไม่มีคนติดเงิน</p>`;
+            } else {
+                debtors.forEach(item => {
+                    const amt = parseFloat(item.amount) || 0;
+                    totalDeb += amt;
+                    debtorsList.innerHTML += `
+                        <div class="flex justify-between items-center bg-[#0a0d14] p-3 rounded-xl border border-[#2a3040]">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-[#1e2330] flex items-center justify-center text-lg border border-[#3d465c]">${item.emoji || '👤'}</div>
+                                <div>
+                                    <p class="text-sm text-gray-200">${item.name}</p>
+                                    <p class="text-[10px] text-gray-400">${item.note || '-'}</p>
+                                </div>
+                            </div>
+                            <div class="text-rose-400 font-medium text-sm">$${formatMoney(amt)}</div>
+                        </div>`;
+                });
+            }
+            
+            document.getElementById('total-savings').innerText = formatMoney(totalSav);
+            document.getElementById('total-debtors').innerText = formatMoney(totalDeb);
         }
 
         // ---------------- OTHER TABS ---------------- //
@@ -787,7 +837,6 @@
             try {
                 await fetch(sheetUrl, {
                     method: 'POST',
-                    mode: 'no-cors', 
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
