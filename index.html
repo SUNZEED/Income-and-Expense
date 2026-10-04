@@ -4,8 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>รายรับ-จ่าย Pro</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap');
         body { font-family: 'Kanit', sans-serif; background-color: #0a0d14; color: #f1f5f9; }
@@ -19,6 +24,11 @@
         .dark-card { background-color: #1e2330; border: 1px solid #2a3040; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3); }
         .kplus-icon { background-color: #2a3040; border: 1px solid #3d465c; transition: all 0.2s; }
         .kplus-icon:active { background-color: #3d465c; transform: scale(0.95); }
+        
+        /* Segmented Control Styles */
+        .segment-btn { transition: all 0.2s; }
+        .segment-active.income { background-color: #14b8a6; color: white; }
+        .segment-active.expense { background-color: #f43f5e; color: white; }
     </style>
 </head>
 <body class="bg-[#0a0d14] text-slate-200 min-h-screen overflow-x-hidden selection:bg-teal-500/30">
@@ -46,6 +56,7 @@
         
         <!-- TAB 1: Dashboard -->
         <div id="tab-dashboard" class="tab-content active space-y-4">
+            
             <!-- Time Filters -->
             <div class="flex bg-[#1e2330] p-1 rounded-xl border border-[#2a3040]">
                 <button onclick="setTimeFilter('today')" id="tfilter-today" class="tfilter-btn flex-1 py-1.5 text-xs font-medium rounded-lg text-gray-400 hover:text-white transition">วันนี้</button>
@@ -86,11 +97,46 @@
             </div>
         </div>
 
-        <!-- TAB 2: Stats (Charts) -->
-        <div id="tab-stats" class="tab-content space-y-6 pb-10">
-            <h3 class="text-xl font-semibold text-white px-2">สถิติ</h3>
+        <!-- TAB 2: Stats (Charts & Breakdown) -->
+        <div id="tab-stats" class="tab-content pb-10">
+            <h3 class="text-xl font-semibold text-white px-2 mb-4">สถิติและสรุปยอด</h3>
+            
+            <!-- Stats Time Filters -->
+            <div class="flex bg-[#1e2330] p-1 rounded-xl border border-[#2a3040] mb-6">
+                <button onclick="setStatsTimeFilter('today')" id="sfilter-today" class="sfilter-btn flex-1 py-1.5 text-xs font-medium rounded-lg text-gray-400 hover:text-white transition">วันนี้</button>
+                <button onclick="setStatsTimeFilter('week')" id="sfilter-week" class="sfilter-btn flex-1 py-1.5 text-xs font-medium rounded-lg text-gray-400 hover:text-white transition">สัปดาห์นี้</button>
+                <button onclick="setStatsTimeFilter('month')" id="sfilter-month" class="sfilter-btn flex-1 py-1.5 text-xs font-medium rounded-lg bg-[#2a3040] text-white transition shadow-sm">เดือนนี้</button>
+                <button onclick="setStatsTimeFilter('all')" id="sfilter-all" class="sfilter-btn flex-1 py-1.5 text-xs font-medium rounded-lg text-gray-400 hover:text-white transition">ทั้งหมด</button>
+            </div>
+
+            <!-- Main Pie Chart Card -->
+            <div class="dark-card rounded-3xl p-6 mb-6">
+                <!-- Segmented Control: Income / Expense -->
+                <div class="flex justify-center mb-6">
+                    <div class="bg-[#0a0d14] p-1 rounded-xl border border-[#2a3040] inline-flex">
+                        <button onclick="setStatsType('expense')" id="stype-expense" class="segment-btn px-6 py-1.5 text-sm font-medium rounded-lg text-gray-400 hover:text-white">รายจ่าย</button>
+                        <button onclick="setStatsType('income')" id="stype-income" class="segment-btn px-6 py-1.5 text-sm font-medium rounded-lg segment-active income">รายรับ</button>
+                    </div>
+                </div>
+
+                <!-- Donut Chart Canvas -->
+                <div class="relative w-48 h-48 mx-auto mb-6">
+                    <canvas id="categoryChart"></canvas>
+                    <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                        <span class="text-[11px] text-gray-400 mb-0.5" id="chart-center-label">รายรับรวม</span>
+                        <span class="text-xl font-bold text-white tracking-tight" id="chart-center-total">0</span>
+                    </div>
+                </div>
+
+                <!-- Category Breakdown List -->
+                <div id="stats-breakdown-list" class="space-y-3 mt-6 border-t border-[#2a3040] pt-4">
+                    <!-- Dynamic List Injected Here -->
+                </div>
+            </div>
+
+            <h3 class="text-sm font-medium text-gray-400 px-2 mb-3 mt-8">สรุปแนวโน้ม (Trend)</h3>
             <div id="stats-container" class="space-y-6">
-                <!-- Charts Injected Here -->
+                <!-- Horizontal Bar Charts Injected Here -->
             </div>
         </div>
 
@@ -153,10 +199,10 @@
             </button>
             
             <button onclick="switchTab('stats')" class="nav-btn text-gray-500 hover:text-gray-300 flex flex-col items-center w-[18%] pr-2" data-target="stats">
-                <i class="fa-solid fa-chart-simple text-xl mb-1 mt-1"></i><span class="text-[10px] font-medium">สถิติ</span>
+                <i class="fa-solid fa-chart-pie text-xl mb-1 mt-1"></i><span class="text-[10px] font-medium">สถิติ</span>
             </button>
             
-            <!-- Main FAB (Add) - Center (takes about 20% visual space) -->
+            <!-- Main FAB (Add) -->
             <div class="w-[20%] flex justify-center">
                 <button onclick="switchTab('quick')" class="absolute -top-8 bg-teal-500 hover:bg-teal-400 p-4 rounded-full text-white shadow-[0_4px_20px_rgba(20,184,166,0.5)] border-4 border-[#0a0d14] transition hover:scale-110 active:scale-95" data-target="quick">
                     <i class="fa-solid fa-plus text-2xl w-7 h-7 flex items-center justify-center"></i>
@@ -208,6 +254,11 @@
         let isShortFormat = true;
         const thaiMonths = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
 
+        // Stats specific state
+        let statsTimeFilter = 'month'; 
+        let statsType = 'income'; 
+        let categoryChartInstance = null;
+
         document.getElementById('sheet-url').value = sheetUrl;
 
         if(sheetUrl) {
@@ -233,7 +284,7 @@
                 renderDashboard();
                 renderAllTransactions();
                 renderQuickAdd();
-                renderStats(); // Render charts
+                renderStatsPage(); // Render initial stats
                 
             } catch (error) {
                 console.error("Fetch Error:", error);
@@ -281,7 +332,7 @@
             isShortFormat = !isShortFormat;
             renderDashboard();
             renderAllTransactions();
-            renderStats(); // Update charts numbers
+            renderStatsPage(); 
         }
 
         function formatMoney(amount) {
@@ -297,8 +348,210 @@
             }
         }
 
-        // ---------------- STATS (CHARTS) LOGIC ---------------- //
-        function buildChartHTML(title, subtitle, iconClass, dataList, barColorClass) {
+        // ---------------- DASHBOARD LOGIC ---------------- //
+        function setTimeFilter(filter) {
+            currentTimeFilter = filter;
+            document.querySelectorAll('.tfilter-btn').forEach(btn => {
+                btn.classList.remove('bg-[#2a3040]', 'text-white', 'shadow-sm');
+                btn.classList.add('text-gray-400');
+            });
+            let activeBtn = document.getElementById(`tfilter-${filter}`);
+            activeBtn.classList.remove('text-gray-400');
+            activeBtn.classList.add('bg-[#2a3040]', 'text-white', 'shadow-sm');
+
+            const labels = { 'today': 'ยอดเงินวันนี้', 'week': 'ยอดเงินสัปดาห์นี้', 'month': 'ยอดเงินเดือนนี้', 'all': 'ยอดเงินรวมทั้งหมด' };
+            document.getElementById('filter-label').innerText = labels[filter];
+            renderDashboard();
+        }
+
+        function filterTransactionsByTime(sourceTrans, filterType) {
+            if (filterType === 'all') return sourceTrans;
+
+            const now = new Date();
+            const todayStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+            
+            return sourceTrans.filter(t => {
+                if (filterType === 'today') return t.date === todayStr;
+                
+                const tDate = parseLocalDate(t.date);
+                if (filterType === 'week') {
+                    const lastSunday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                    lastSunday.setDate(lastSunday.getDate() - lastSunday.getDay());
+                    return tDate >= lastSunday && tDate <= now; 
+                }
+                
+                if (filterType === 'month') {
+                    return tDate.getMonth() === now.getMonth() && tDate.getFullYear() === now.getFullYear();
+                }
+                return true;
+            });
+        }
+
+        function renderDashboard() {
+            let total = 0, incTotal = 0, expTotal = 0;
+            const recentList = document.getElementById('recent-list');
+            recentList.innerHTML = '';
+
+            const filteredTrans = filterTransactionsByTime(transactions, currentTimeFilter);
+
+            filteredTrans.forEach(t => {
+                const amt = parseFloat(t.amount);
+                if(t.type === 'income') { total += amt; incTotal += amt; } 
+                else { total -= amt; expTotal += amt; }
+            });
+
+            const balSign = total < 0 ? '-' : (total > 0 ? '+' : '');
+            document.getElementById('total-balance').innerText = balSign + '$' + formatMoney(total);
+            document.getElementById('total-income').innerText = '+$' + formatMoney(incTotal);
+            document.getElementById('total-expense').innerText = '-$' + formatMoney(expTotal);
+
+            let reversed = [...filteredTrans].reverse();
+            let recent = reversed.slice(0, 5); 
+            
+            if(recent.length === 0) {
+                recentList.innerHTML = `<div class="text-center py-8 dark-card rounded-2xl border-dashed"><p class="text-gray-500 text-sm">ไม่มีรายการในหมวดเวลานี้</p></div>`;
+            } else {
+                recent.forEach(t => recentList.innerHTML += buildTransactionHTML(t));
+            }
+        }
+
+        // ---------------- STATS (PIE CHART & BREAKDOWN) LOGIC ---------------- //
+        function setStatsTimeFilter(filter) {
+            statsTimeFilter = filter;
+            document.querySelectorAll('.sfilter-btn').forEach(btn => {
+                btn.classList.remove('bg-[#2a3040]', 'text-white', 'shadow-sm');
+                btn.classList.add('text-gray-400');
+            });
+            let activeBtn = document.getElementById(`sfilter-${filter}`);
+            activeBtn.classList.remove('text-gray-400');
+            activeBtn.classList.add('bg-[#2a3040]', 'text-white', 'shadow-sm');
+            renderStatsPage();
+        }
+
+        function setStatsType(type) {
+            statsType = type;
+            const btnInc = document.getElementById('stype-income');
+            const btnExp = document.getElementById('stype-expense');
+            
+            btnInc.className = "segment-btn px-6 py-1.5 text-sm font-medium rounded-lg " + (type === 'income' ? "segment-active income" : "text-gray-400 hover:text-white");
+            btnExp.className = "segment-btn px-6 py-1.5 text-sm font-medium rounded-lg " + (type === 'expense' ? "segment-active expense" : "text-gray-400 hover:text-white");
+            renderStatsPage();
+        }
+
+        function renderStatsPage() {
+            // 1. Filter Data for Pie Chart
+            const timeFiltered = filterTransactionsByTime(transactions, statsTimeFilter);
+            const typeFiltered = timeFiltered.filter(t => t.type === statsType);
+
+            // 2. Group by Category
+            let categoryTotals = {};
+            let totalAmount = 0;
+            typeFiltered.forEach(t => {
+                const amt = parseFloat(t.amount);
+                if (!categoryTotals[t.name]) {
+                    categoryTotals[t.name] = { amount: 0, emoji: t.emoji };
+                }
+                categoryTotals[t.name].amount += amt;
+                totalAmount += amt;
+            });
+
+            // Convert to array and sort descending
+            let chartDataArray = Object.keys(categoryTotals).map(key => ({
+                name: key,
+                emoji: categoryTotals[key].emoji,
+                amount: categoryTotals[key].amount
+            })).sort((a, b) => b.amount - a.amount);
+
+            // Update Center Text
+            document.getElementById('chart-center-label').innerText = statsType === 'income' ? 'รายรับรวม' : 'รายจ่ายรวม';
+            document.getElementById('chart-center-total').innerText = '$' + formatMoney(totalAmount);
+
+            // Chart Colors Palette
+            const incomeColors = ['#14b8a6', '#0ea5e9', '#3b82f6', '#8b5cf6', '#10b981', '#2dd4bf', '#38bdf8'];
+            const expenseColors = ['#f43f5e', '#f97316', '#eab308', '#ef4444', '#fb7185', '#fb923c', '#facc15'];
+            const activeColors = statsType === 'income' ? incomeColors : expenseColors;
+
+            const labels = chartDataArray.map(d => d.name);
+            const dataValues = chartDataArray.map(d => d.amount);
+            const backgroundColors = chartDataArray.map((_, i) => activeColors[i % activeColors.length]);
+
+            // 3. Render Chart.js
+            const ctx = document.getElementById('categoryChart').getContext('2d');
+            if (categoryChartInstance) {
+                categoryChartInstance.data.labels = labels;
+                categoryChartInstance.data.datasets[0].data = dataValues;
+                categoryChartInstance.data.datasets[0].backgroundColor = backgroundColors;
+                categoryChartInstance.update();
+            } else {
+                categoryChartInstance = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: dataValues,
+                            backgroundColor: backgroundColors,
+                            borderWidth: 0,
+                            hoverOffset: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '75%', // Thickness of donut
+                        plugins: {
+                            legend: { display: false }, // Hide default legend
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let val = context.raw;
+                                        return ' $' + val.toLocaleString('en-US');
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // 4. Render Breakdown List below chart
+            const breakdownList = document.getElementById('stats-breakdown-list');
+            breakdownList.innerHTML = '';
+            
+            if (chartDataArray.length === 0) {
+                breakdownList.innerHTML = `<p class="text-center text-sm text-gray-500 py-4">ไม่มีข้อมูลในหมวดนี้</p>`;
+            } else {
+                chartDataArray.forEach((item, index) => {
+                    let percent = totalAmount > 0 ? Math.round((item.amount / totalAmount) * 100) : 0;
+                    let dotColor = activeColors[index % activeColors.length];
+                    let amtColor = statsType === 'income' ? 'text-teal-400' : 'text-rose-400';
+                    let sign = statsType === 'income' ? '+' : '-';
+
+                    breakdownList.innerHTML += `
+                        <div class="flex justify-between items-center bg-[#121620] p-3 rounded-xl border border-[#2a3040]">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-[#1e2330] flex items-center justify-center border border-[#3d465c] relative">
+                                    <span class="text-sm">${item.emoji}</span>
+                                    <div class="absolute -right-1 -bottom-1 w-3 h-3 rounded-full border-2 border-[#121620]" style="background-color: ${dotColor}"></div>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-200">${item.name}</p>
+                                    <p class="text-[10px] text-gray-400">${percent}%</p>
+                                </div>
+                            </div>
+                            <div class="text-right font-medium ${amtColor} text-sm">
+                                ${sign}$${formatMoney(item.amount)}
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            // 5. Render Horizontal Trend Charts (The old stats)
+            renderTrendCharts();
+        }
+
+        // Horizontal Bar Charts (Trend)
+        function buildTrendChartHTML(title, subtitle, iconClass, dataList, barColorClass) {
             let maxVal = Math.max(...dataList.map(d => d.value));
             
             let html = `
@@ -320,7 +573,7 @@
                         <div class="flex-1 mx-3 h-3 bg-[#0a0d14] rounded-full overflow-hidden border border-[#2a3040]">
                             <div class="h-full rounded-full ${barColorClass}" style="width: ${width}%"></div>
                         </div>
-                        <div class="w-20 text-right font-medium text-gray-200">${valStr}</div>
+                        <div class="w-16 text-right font-medium text-gray-200 truncate">${valStr}</div>
                     </div>
                 `;
             });
@@ -328,36 +581,31 @@
             return html;
         }
 
-        function renderStats() {
+        function renderTrendCharts() {
             const container = document.getElementById('stats-container');
             const now = new Date();
             const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
             let html = '';
 
-            // 1. DAILY (Last 7 days)
             let dailyData = [];
             for(let i=6; i>=0; i--) {
                 let d = new Date(today);
                 d.setDate(today.getDate() - i);
-                
                 let dateStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
                 
                 let sum = transactions.reduce((acc, t) => {
-                    if(t.date === dateStr) {
-                        return acc + (t.type === 'income' ? parseFloat(t.amount) : -parseFloat(t.amount));
-                    }
+                    if(t.date === dateStr) { return acc + (t.type === 'income' ? parseFloat(t.amount) : -parseFloat(t.amount)); }
                     return acc;
                 }, 0);
                 
                 let label = i === 0 ? 'วันนี้' : `${d.getDate()} ${thaiMonths[d.getMonth()]}`;
                 dailyData.push({ label, value: sum });
             }
-            html += buildChartHTML('รายวัน', '(7 วันย้อนหลัง)', 'fa-solid fa-calendar-day', dailyData, 'bg-emerald-400');
+            html += buildTrendChartHTML('แนวโน้มรายวัน', '(7 วันย้อนหลัง)', 'fa-solid fa-calendar-day', dailyData, 'bg-emerald-400');
 
-            // 2. WEEKLY (Last 4 weeks)
             let weeklyData = [];
             let startOfThisWeek = new Date(today);
-            startOfThisWeek.setDate(today.getDate() - today.getDay()); // Sunday
+            startOfThisWeek.setDate(today.getDate() - today.getDay()); 
             
             for(let i=3; i>=0; i--) {
                 let weekStart = new Date(startOfThisWeek);
@@ -367,84 +615,31 @@
                 
                 let sum = transactions.reduce((acc, t) => {
                     let tDate = parseLocalDate(t.date);
-                    if(tDate >= weekStart && tDate <= weekEnd) {
-                        return acc + (t.type === 'income' ? parseFloat(t.amount) : -parseFloat(t.amount));
-                    }
+                    if(tDate >= weekStart && tDate <= weekEnd) { return acc + (t.type === 'income' ? parseFloat(t.amount) : -parseFloat(t.amount)); }
                     return acc;
                 }, 0);
                 
                 let label = i === 0 ? 'สัปดาห์นี้' : `${i} วีคที่แล้ว`;
                 weeklyData.push({ label, value: sum });
             }
-            html += buildChartHTML('รายสัปดาห์', '(4 วีคย้อนหลัง)', 'fa-regular fa-calendar-check', weeklyData, 'bg-cyan-400');
+            html += buildTrendChartHTML('แนวโน้มรายสัปดาห์', '(4 วีคย้อนหลัง)', 'fa-regular fa-calendar-check', weeklyData, 'bg-cyan-400');
 
-            // 3. MONTHLY (Current year)
             let monthlyData = [];
             const currentYear = today.getFullYear();
             for(let i=0; i<12; i++) {
                 let sum = transactions.reduce((acc, t) => {
                     let tDate = parseLocalDate(t.date);
-                    if(tDate.getFullYear() === currentYear && tDate.getMonth() === i) {
-                        return acc + (t.type === 'income' ? parseFloat(t.amount) : -parseFloat(t.amount));
-                    }
+                    if(tDate.getFullYear() === currentYear && tDate.getMonth() === i) { return acc + (t.type === 'income' ? parseFloat(t.amount) : -parseFloat(t.amount)); }
                     return acc;
                 }, 0);
                 monthlyData.push({ label: thaiMonths[i], value: sum });
             }
-            html += buildChartHTML('รายเดือน', '(ปีปัจจุบัน)', 'fa-solid fa-calendar-days', monthlyData, 'bg-orange-500');
+            html += buildTrendChartHTML('แนวโน้มรายเดือน', '(ปีปัจจุบัน)', 'fa-solid fa-calendar-days', monthlyData, 'bg-orange-500');
 
             container.innerHTML = html;
         }
 
-        // ---------------- UI & Navigation ---------------- //
-
-        function setTimeFilter(filter) {
-            currentTimeFilter = filter;
-            
-            document.querySelectorAll('.tfilter-btn').forEach(btn => {
-                btn.classList.remove('bg-[#2a3040]', 'text-white', 'shadow-sm');
-                btn.classList.add('text-gray-400');
-            });
-            let activeBtn = document.getElementById(`tfilter-${filter}`);
-            activeBtn.classList.remove('text-gray-400');
-            activeBtn.classList.add('bg-[#2a3040]', 'text-white', 'shadow-sm');
-
-            const labels = {
-                'today': 'ยอดเงินวันนี้',
-                'week': 'ยอดเงินสัปดาห์นี้',
-                'month': 'ยอดเงินเดือนนี้',
-                'all': 'ยอดเงินรวมทั้งหมด'
-            };
-            document.getElementById('filter-label').innerText = labels[filter];
-
-            renderDashboard();
-        }
-
-        function getFilteredTransactions() {
-            if (currentTimeFilter === 'all') return transactions;
-
-            const now = new Date();
-            const todayStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-            
-            return transactions.filter(t => {
-                if (currentTimeFilter === 'today') {
-                    return t.date === todayStr;
-                }
-                
-                const tDate = parseLocalDate(t.date);
-                if (currentTimeFilter === 'week') {
-                    const lastSunday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-                    lastSunday.setDate(lastSunday.getDate() - lastSunday.getDay());
-                    return tDate >= lastSunday && tDate <= now; 
-                }
-                
-                if (currentTimeFilter === 'month') {
-                    return tDate.getMonth() === now.getMonth() && tDate.getFullYear() === now.getFullYear();
-                }
-                return true;
-            });
-        }
-
+        // ---------------- OTHER TABS ---------------- //
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(el => {
@@ -462,8 +657,7 @@
                 btn.classList.add('text-teal-400');
             }
             
-            // Re-render stats if switching to it, in case data changed
-            if(tabId === 'stats') renderStats();
+            if(tabId === 'stats') renderStatsPage();
         }
 
         function buildTransactionHTML(t) {
@@ -487,35 +681,6 @@
                         </p>
                     </div>
                 </div>`;
-        }
-
-        function renderDashboard() {
-            let total = 0, incTotal = 0, expTotal = 0;
-            const recentList = document.getElementById('recent-list');
-            recentList.innerHTML = '';
-
-            const filteredTrans = getFilteredTransactions();
-
-            filteredTrans.forEach(t => {
-                const amt = parseFloat(t.amount);
-                if(t.type === 'income') { total += amt; incTotal += amt; } 
-                else { total -= amt; expTotal += amt; }
-            });
-
-            const balSign = total < 0 ? '-' : (total > 0 ? '+' : '');
-
-            document.getElementById('total-balance').innerText = balSign + '$' + formatMoney(total);
-            document.getElementById('total-income').innerText = '+$' + formatMoney(incTotal);
-            document.getElementById('total-expense').innerText = '-$' + formatMoney(expTotal);
-
-            let reversed = [...filteredTrans].reverse();
-            let recent = reversed.slice(0, 5); 
-            
-            if(recent.length === 0) {
-                recentList.innerHTML = `<div class="text-center py-8 dark-card rounded-2xl border-dashed"><p class="text-gray-500 text-sm">ไม่มีรายการในหมวดเวลานี้</p></div>`;
-            } else {
-                recent.forEach(t => recentList.innerHTML += buildTransactionHTML(t));
-            }
         }
 
         function renderAllTransactions() {
